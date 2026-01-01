@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Zadania edukacyjne – Gra Czerwona Kulka (Python + Pygame)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20mm;
+            line-height: 1.4;
+            font-size: 11pt;
+        }
+        h1, h2, h3 {
+            page-break-after: avoid;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10mm;
+        }
+        h2 {
+            margin-top: 8mm;
+            border-bottom: 1px solid #000;
+            padding-bottom: 2mm;
+        }
+        .task {
+            margin-bottom: 10mm;
+        }
+        .code {
+            font-family: "Courier New", monospace;
+            font-size: 10pt;
+            background: #f3f3f3;
+            border: 1px solid #ccc;
+            padding: 4px 6px;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        ul, ol {
+            margin-top: 2mm;
+            margin-bottom: 2mm;
+        }
+        .note {
+            font-style: italic;
+            margin-top: 2mm;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Zadania edukacyjne – Gra „Czerwona Kulka” (Python + Pygame)</h1>
+
+<p>
+    Ten zestaw zadań pomaga krok po kroku rozwijać prostą grę w Pythonie (Pygame),
+    w której sterujemy czerwoną kulką. Każde zadanie można robić osobno z dzieckiem:
+    czytając opis, a potem wprowadzając zmiany w kodzie.
+</p>
+
+<hr>
+
+<div class="task">
+    <h2>Zadanie 1 – Dodanie dźwięku skoku</h2>
+
+    <h3>Cel</h3>
+    <p>
+        Gdy kulka skacze, odtwarzany jest dźwięk. Uczeń uczy się:
+        jak ładować dźwięk, jak go odtwarzać przy konkretnym zdarzeniu.
+    </p>
+
+    <h3>Krok 1 – Przygotuj plik dźwiękowy</h3>
+    <ol>
+        <li>Znajdź krótki dźwięk w formacie <b>WAV</b> (np. efekt „click”, „jump”).</li>
+        <li>Zapisz go w tym samym folderze, w którym znajduje się plik z grą.</li>
+        <li>Nazwij plik: <b>skok.wav</b>.</li>
+    </ol>
+
+    <h3>Krok 2 – Włącz moduł dźwięku w Pygame</h3>
+    <p>W funkcji <span class="code">main()</span>, zaraz po linii:</p>
+    <div class="code">pygame.init()</div>
+    <p>dodaj linię:</p>
+    <div class="code">pygame.mixer.init()  # włącza obsługę dźwięku</div>
+
+    <h3>Krok 3 – Wczytaj dźwięk skoku</h3>
+    <p>
+        W funkcji <span class="code">main()</span>, po utworzeniu okna i zegara, znajdź fragment:
+    </p>
+    <div class="code">
+ekran = pygame.display.set_mode((SZEROKOSC, WYSOKOSC))
+pygame.display.set_caption("Czerwona Kulka - Dino Style")
+zegar = pygame.time.Clock()
+    </div>
+    <p>Pod nim dopisz:</p>
+    <div class="code">
+# ŁADOWANIE DŹWIĘKU SKOKU
+dzwiek_skok = pygame.mixer.Sound("skok.wav")
+    </div>
+
+    <h3>Krok 4 – Zagraj dźwięk przy skoku</h3>
+    <p>Znajdź w pętli zdarzeń taki fragment:</p>
+    <div class="code">
+if event.type == pygame.KEYDOWN:
+    if event.key in (pygame.K_SPACE, pygame.K_UP):
+        if not w_powietrzu:
+            predkosc_y = -18
+            w_powietrzu = True
+    </div>
+    <p>Zamień go na:</p>
+    <div class="code">
+if event.type == pygame.KEYDOWN:
+    if event.key in (pygame.K_SPACE, pygame.K_UP):
+        if not w_powietrzu:
+            predkosc_y = -18
+            w_powietrzu = True
+            dzwiek_skok.play()  # zagraj dźwięk skoku
+    </div>
+
+    <p class="note">
+        Po tym zadaniu warto porozmawiać z uczniem:
+        „Co się stanie, jeśli zmienimy plik WAV?”,
+        „Czy możemy mieć różne dźwięki dla różnych akcji?”.
+    </p>
+</div>
+
+<div class="page-break"></div>
+
+<div class="task">
+    <h2>Zadanie 2 – Zmiana kolorów tła i podłogi</h2>
+
+    <h3>Cel</h3>
+    <p>
+        Uczeń uczy się, że kolory w komputerze to trójki liczb (RGB),
+        i że łatwo można odmienić wygląd gry.
+    </p>
+
+    <h3>Krok 1 – Dodaj nowe kolory</h3>
+    <p>Na początku pliku, obok definicji kolorów:</p>
+    <div class="code">
+BIALY = (255, 255, 255)
+CZARNY = (0, 0, 0)
+CZERWONY = (200, 0, 0)
+    </div>
+    <p>dodaj np.:</p>
+    <div class="code">
+NIEBIESKIE_TLO = (150, 200, 255)
+ZIELONA_PODLOGA = (0, 180, 0)
+    </div>
+
+    <h3>Krok 2 – Zmień kolor tła</h3>
+    <p>Znajdź linijkę:</p>
+    <div class="code">ekran.fill(BIALY)</div>
+    <p>Zamień ją na:</p>
+    <div class="code">ekran.fill(NIEBIESKIE_TLO)</div>
+
+    <h3>Krok 3 – Zmień kolor podłogi</h3>
+    <p>Znajdź linijkę, która rysuje podłogę:</p>
+    <div class="code">
+pygame.draw.line(ekran, CZARNY, (0, podloga_y), (SZEROKOSC, podloga_y), 2)
+    </div>
+    <p>Zamień ją na:</p>
+    <div class="code">
+pygame.draw.line(ekran, ZIELONA_PODLOGA, (0, podloga_y), (SZEROKOSC, podloga_y), 4)
+    </div>
+
+    <p class="note">
+        Zachęta: poproś ucznia, żeby sam wymyślił swoje kolory tła i podłogi (inne wartości RGB)
+        i zapisał je np. jako „PIASKOWE_TLO”, „FIOLETOWA_PODLOGA” itd.
+    </p>
+</div>
+
+<div class="page-break"></div>
+
+<div class="task">
+    <h2>Zadanie 3 – Mrugające oko</h2>
+
+    <h3>Cel</h3>
+    <p>
+        Kulka co jakiś czas mruga okiem. Uczeń uczy się pracy z czasem,
+        stanami (prawda/fałsz) oraz prostą animacją.
+    </p>
+
+    <h3>Krok 1 – Dodaj zmienne do mrugania</h3>
+    <p>W funkcji <span class="code">main()</span>, obok:</p>
+    <div class="code">
+licznik_klatek = 0
+faza = 0
+    </div>
+    <p>dodaj:</p>
+    <div class="code">
+mruga = False
+czas_nastepnego_mrugu = pygame.time.get_ticks() + 2000  # pierwszy mrug za ok. 2 sekundy
+    </div>
+
+    <h3>Krok 2 – Aktualizuj stan mrugania</h3>
+    <p>W głównej pętli gry (po <span class="code">wynik += 1</span>) dopisz:</p>
+    <div class="code">
+# MRUGANIE OKIEM
+teraz_czas = pygame.time.get_ticks()
+if teraz_czas > czas_nastepnego_mrugu:
+    # przełączamy stan mrugania
+    mruga = not mruga
+
+    if mruga:
+        # oko zamknięte przez chwilę
+        czas_nastepnego_mrugu = teraz_czas + 150  # 0.15 sekundy
+    else:
+        # kolejne mrugnięcie za 2–4 sekundy
+        czas_nastepnego_mrugu = teraz_czas + random.randint(2000, 4000)
+    </div>
+
+    <h3>Krok 3 – Przekaż informację o mruganiu do funkcji rysującej</h3>
+    <p>Zmień nagłówek funkcji <span class="code">rysuj_kulke</span> z:</p>
+    <div class="code">def rysuj_kulke(ekran, x, y, faza):</div>
+    <p>na:</p>
+    <div class="code">def rysuj_kulke(ekran, x, y, faza, mruga):</div>
+
+    <p>Następnie znajdź wywołanie tej funkcji:</p>
+    <div class="code">rysuj_kulke(ekran, kulka_x, kulka_y, faza)</div>
+    <p>i zamień na:</p>
+    <div class="code">rysuj_kulke(ekran, kulka_x, kulka_y, faza, mruga)</div>
+
+    <h3>Krok 4 – Zmień rysowanie oka</h3>
+    <p>W funkcji <span class="code">rysuj_kulke</span> znajdź fragment rysujący oko:</p>
+    <div class="code">
+pygame.draw.circle(ekran, CZARNY, (oko_x, oko_y), 4)
+    </div>
+    <p>Zastąp go tym kodem:</p>
+    <div class="code">
+if mruga:
+    # oko zamknięte - kreska
+    pygame.draw.line(ekran, CZARNY, (oko_x - 4, oko_y), (oko_x + 4, oko_y), 2)
+else:
+    # normalne oko - kółko
+    pygame.draw.circle(ekran, CZARNY, (oko_x, oko_y), 4)
+    </div>
+
+    <p class="note">
+        Spróbuj z uczniem zmienić czas mrugania (150 ms, 500 ms itp.)
+        oraz częstotliwość (np. co 1 sekundę).
+    </p>
+</div>
+
+<div class="page-break"></div>
+
+<div class="task">
+    <h2>Zadanie 4 – System żyć</h2>
+
+    <h3>Cel</h3>
+    <p>
+        Po zderzeniu z przeszkodą kulka nie ginie od razu –
+        ma np. 2 życia. Uczeń poznaje licznik żyć, warunki i reset pozycji.
+    </p>
+
+    <h3>Krok 1 – Dodaj licznik żyć</h3>
+    <p>W funkcji <span class="code">main()</span>, obok <span class="code">wynik = 0</span>, dopisz:</p>
+    <div class="code">
+zycia = 2  # liczba żyć gracza
+    </div>
+
+    <h3>Krok 2 – Zmień zachowanie przy kolizji</h3>
+    <p>Znajdź fragment z kolizją:</p>
+    <div class="code">
+for przes in przeszkody:
+    if kulka_rect.colliderect(przes):
+        uruchomiona = False
+    </div>
+    <p>Zastąp go poniższym kodem:</p>
+    <div class="code">
+for przes in przeszkody:
+    if kulka_rect.colliderect(przes):
+        zycia -= 1           # tracimy jedno życie
+        przeszkody.clear()   # usuwamy przeszkody z ekranu
+        kulka_x = 100
+        kulka_y = podloga_y - 30
+        predkosc_y = 0
+        w_powietrzu = False
+
+        if zycia <= 0:
+            uruchomiona = False  # koniec gry, jeśli brak żyć
+        break  # ważne: przerywamy pętlę, żeby nie odjąć kilku żyć naraz
+    </div>
+
+    <h3>Krok 3 – Wyświetl ilość żyć na ekranie</h3>
+    <p>Po wyświetleniu wyniku:</p>
+    <div class="code">
+tekst = czcionka.render(f"Wynik: {wynik}", True, CZARNY)
+ekran.blit(tekst, (10, 10))
+    </div>
+    <p>dodaj:</p>
+    <div class="code">
+tekst_zycia = czcionka.render(f"Życia: {zycia}", True, CZARNY)
+ekran.blit(tekst_zycia, (10, 40))
+    </div>
+
+    <p class="note">
+        Zapytaj ucznia: „A co, jeśli damy 5 żyć?”, „Czy możemy dodać serduszka zamiast liczby?”.
+    </p>
+</div>
+
+<div class="page-break"></div>
+
+<div class="task">
+    <h2>Zadanie 5 – Ekran „Game Over” i restart</h2>
+
+    <h3>Cel</h3>
+    <p>
+        Po utracie wszystkich żyć gra się zatrzymuje i wyświetla ekran „Game Over”.
+        Gracz może nacisnąć SPACJĘ, aby zagrać ponownie.
+    </p>
+
+    <h3>Krok 1 – Dodaj zmienną stanu gry</h3>
+    <p>W funkcji <span class="code">main()</span>, obok:</p>
+    <div class="code">
+wynik = 0
+zycia = 2
+    </div>
+    <p>dodaj:</p>
+    <div class="code">
+game_over = False
+    </div>
+
+    <h3>Krok 2 – Ustaw game_over po utracie żyć</h3>
+    <p>W kodzie, gdzie sprawdzamy:</p>
+    <div class="code">
+if zycia <= 0:
+    uruchomiona = False
+    </div>
+    <p>zamień to na:</p>
+    <div class="code">
+if zycia <= 0:
+    game_over = True
+    </div>
+
+    <h3>Krok 3 – Obsłuż ekran Game Over w pętli gry</h3>
+    <p>Na początku pętli <span class="code">while uruchomiona:</span>,
+    zaraz po <span class="code">zegar.tick(FPS)</span>, można dodać blok:</p>
+    <div class="code">
+if game_over:
+    # RYSUJEMY EKRAN KOŃCOWY
+    ekran.fill(BIALY)
+    tekst_koniec = czcionka.render("GAME OVER", True, CZARNY)
+    instrukcja = czcionka.render("Naciśnij SPACJĘ, aby zagrać jeszcze raz", True, CZARNY)
+
+    ekran.blit(tekst_koniec, (SZEROKOSC//2 - 80, WYSOKOSC//2 - 40))
+    ekran.blit(instrukcja, (SZEROKOSC//2 - 200, WYSOKOSC//2))
+
+    pygame.display.flip()
+
+    # obsługa zdarzeń tylko dla ekranu końcowego
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            uruchomiona = False
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            # reset gry
+            przeszkody.clear()
+            wynik = 0
+            zycia = 2
+            kulka_x = 100
+            kulka_y = podloga_y - 30
+            predkosc_y = 0
+            w_powietrzu = False
+            game_over = False
+
+    continue  # pomijamy resztę logiki, dopóki trwa game_over
+    </div>
+
+    <p class="note">
+        To zadanie jest trudniejsze. Warto robić je razem z dzieckiem,
+        tłumacząc, czym jest „stan gry” i dlaczego używamy <b>continue</b>.
+    </p>
+</div>
+
+<hr>
+
+<p>
+    <b>Podpowiedź dla rodzica / nauczyciela:</b><br>
+    Nie trzeba robić wszystkich zadań naraz. Można wydrukować tę kartę
+    i odhaczać z dzieckiem kolejne zadania, dopisując na marginesach
+    własne pomysły i eksperymenty (np. inne dźwięki, kolory, więcej żyć).
+</p>
+
+</body>
+</html>
