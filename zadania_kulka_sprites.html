@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zadania krok po kroku – Czerwona Kulka (Pygame)</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 18mm; line-height: 1.45; font-size: 11pt; }
+    h1 { text-align: center; margin-bottom: 8mm; }
+    h2 { border-bottom: 1px solid #000; padding-bottom: 2mm; margin-top: 10mm; }
+    h3 { margin-top: 6mm; }
+    .code { font-family: "Courier New", monospace; font-size: 10pt; background:#f5f5f5; border:1px solid #ddd; padding:8px; white-space: pre; overflow-x:auto; }
+    .note { background:#fff7d6; border:1px solid #f0d37a; padding:8px; }
+    .where { background:#e9f4ff; border:1px solid #b8dbff; padding:8px; }
+    .pb { page-break-after: always; }
+    ul, ol { margin-top: 2mm; }
+    .small { font-size: 10pt; color:#333; }
+  </style>
+</head>
+<body>
+
+<h1>Zadania krok po kroku – rozwijamy grę „Czerwona Kulka” (Python + Pygame)</h1>
+
+<p>
+  Poniżej są 3 nowe zadania edukacyjne. Każde zadanie ma kroki: <b>co dodać</b>, <b>gdzie dodać</b> i <b>jak sprawdzić czy działa</b>.
+  Punkt wyjścia to podany kod gry (z bohaterem rysowanym funkcją <code>rysuj_kulke</code> i przeszkodami jako <code>pygame.Rect</code>).
+</p>
+
+<div class="note">
+  <b>Ważne:</b> Twoje pliki graficzne powinny leżeć w tym samym folderze co plik gry (np. <code>runner.py</code>), chyba że używasz folderu <code>assets/</code>.
+</div>
+
+<h2>1) Zadanie: Dodanie nowego tła do gry (plik: <code>tlo.png</code>)</h2>
+
+<p>
+  W Pygame tło wczytujemy przez <code>pygame.image.load()</code>. Ta funkcja ładuje pliki graficzne (np. PNG/JPG).
+</p>
+
+<h3>Krok 1 – Umieść plik tła obok gry</h3>
+<ul>
+  <li>Wrzuć plik tła do folderu gry.</li>
+  <li>Najlepiej, aby obraz miał rozmiar <b>800×400</b> (czyli taki jak okno gry).</li>
+</ul>
+
+<h3>Krok 2 – Wczytaj tło w <code>main()</code></h3>
+<div class="where">
+  <b>Gdzie:</b> w funkcji <code>main()</code>, zaraz po utworzeniu okna i czcionki, np. po linii:<br/>
+  <code>czcionka = pygame.font.SysFont(&quot;Arial&quot;, 24)</code>
+</div>
+
+<p>Dodaj:</p>
+<div class="code"># --- WCZYTANIE TŁA ---
+# Zmień nazwę pliku na prawdziwą: tlo.png / tlo.jpg
+tlo = pygame.image.load(&quot;tlo.png&quot;).convert()
+tlo = pygame.transform.scale(tlo, (SZEROKOSC, WYSOKOSC))</div>
+
+<p class="small">
+  <code>convert()</code> przyspiesza rysowanie. <code>scale()</code> dopasowuje obraz do rozmiaru okna.
+</p>
+
+<h3>Krok 3 – Zamiast <code>ekran.fill(BIALY)</code> rysuj obraz tła</h3>
+<div class="where">
+  <b>Gdzie:</b> w pętli gry, w sekcji „RYSOWANIE NA EKRANIE”. Znajdź:<br/>
+  <code>ekran.fill(BIALY)</code>
+</div>
+
+<p>Zamień na:</p>
+<div class="code"># Rysowanie tła obrazkiem
+ekran.blit(tlo, (0, 0))</div>
+
+<h3>Krok 4 – Sprawdzenie</h3>
+<ul>
+  <li>Uruchom grę: tło powinno być widoczne zamiast białego ekranu.</li>
+  <li>Jeśli obraz jest „rozciągnięty”, wygeneruj tło w rozdzielczości 800×400.</li>
+  <li>Jeśli wyskakuje błąd „file not found”, sprawdź nazwę pliku i folder.</li>
+</ul>
+
+<div class="pb"></div>
+
+<h2>2) Zadanie: Zastąpienie bohatera animacją ze sprite (plik: <code>kula.png</code>, 3 kolumny × 2 wiersze)</h2>
+
+<p>
+  Zamiast rysować kulkę kółkiem i łukiem, użyjemy gotowego spritesheetu z 6 klatkami (3×2).
+  W każdej klatce gry będziemy zmieniać obrazek bohatera (animacja biegu).
+</p>
+
+<h3>Krok 1 – Umieść plik <code>kula.png</code> w folderze gry</h3>
+<ul>
+  <li>Plik <code>kula.png</code> obok pliku z kodem gry.</li>
+</ul>
+
+<h3>Krok 2 – Dodaj funkcję do cięcia spritesheet</h3>
+<div class="where">
+  <b>Gdzie:</b> na górze pliku (np. pod kolorami), przed <code>main()</code>.
+</div>
+
+<div class="code">def potnij_spritesheet(sheet, kolumny, wiersze):
+    &quot;&quot;&quot;Tnie spritesheet na równe części i zwraca listę klatek.&quot;&quot;&quot;
+    klatki = []
+    sheet_w, sheet_h = sheet.get_size()
+    klatka_w = sheet_w // kolumny
+    klatka_h = sheet_h // wiersze
+
+    for r in range(wiersze):
+        for c in range(kolumny):
+            rect = pygame.Rect(c * klatka_w, r * klatka_h, klatka_w, klatka_h)
+            klatki.append(sheet.subsurface(rect).copy())
+
+    return klatki</div>
+
+<h3>Krok 3 – Wczytaj spritesheet bohatera w <code>main()</code></h3>
+<div class="where">
+  <b>Gdzie:</b> w <code>main()</code>, po utworzeniu okna i czcionki (podobnie jak tło).
+</div>
+
+<div class="code"># --- WCZYTANIE SPRITESHEETU BOHATERA (6 klatek: 3x2) ---
+bohater_sheet = pygame.image.load(&quot;kula.png&quot;).convert_alpha()
+
+# Jeśli sprite ma czarne tło zamiast przezroczystości, odkomentuj:
+# bohater_sheet.set_colorkey((0, 0, 0))
+
+bohater_frames = potnij_spritesheet(bohater_sheet, kolumny=3, wiersze=2)
+
+# (opcjonalnie) dopasuj rozmiar postaci (zmień 80,80 jeśli chcesz)
+bohater_frames = [pygame.transform.scale(f, (80, 80)) for f in bohater_frames]</div>
+
+<h3>Krok 4 – Zamiast <code>rysuj_kulke()</code> narysuj sprite</h3>
+<div class="where">
+  <b>Gdzie:</b> dodaj nową funkcję rysującą (pod <code>potnij_spritesheet</code>).
+</div>
+
+<div class="code">def rysuj_bohatera_sprite(ekran, x, y, frames, frame_index):
+    &quot;&quot;&quot;Rysuje bohatera jako sprite (jedna klatka z frames).&quot;&quot;&quot;
+    obraz = frames[frame_index]
+    rect = obraz.get_rect(center=(x, y))
+    ekran.blit(obraz, rect)</div>
+
+<p class="small">
+  Możesz zostawić starą funkcję <code>rysuj_kulke</code> w pliku (dla porównania). Ważne, by w pętli rysować nową.
+</p>
+
+<h3>Krok 5 – Dodaj zmienne animacji (zamiast <code>faza</code>)</h3>
+<div class="where">
+  <b>Gdzie:</b> w <code>main()</code> znajdź:
+  <code>licznik_klatek = 0</code> oraz <code>faza = 0</code>
+</div>
+
+<p>Zamień na:</p>
+<div class="code">licznik_klatek = 0
+frame_index = 0  # 0..5</div>
+
+<h3>Krok 6 – Zmień logikę animacji w pętli</h3>
+<div class="where">
+  <b>Gdzie:</b> w pętli gry znajdź blok:
+  <code>if licznik_klatek % 10 == 0: faza = 1 - faza</code>
+</div>
+
+<p>Zamień na:</p>
+<div class="code"># --- ANIMACJA BOHATERA (zmieniamy klatki tylko na ziemi) ---
+licznik_klatek += 1
+if not w_powietrzu:
+    if licznik_klatek % 6 == 0:  # mniejsza liczba = szybsza animacja
+        frame_index = (frame_index + 1) % len(bohater_frames)
+else:
+    # w powietrzu możesz zatrzymać animację
+    pass</div>
+
+<h3>Krok 7 – Dopasuj hitbox (kolizję) do rozmiaru sprite</h3>
+<div class="where">
+  <b>Gdzie:</b> w <code>main()</code> znajdź:
+  <code>kulka_szer = 60</code> i <code>kulka_wys = 60</code>
+</div>
+
+<p>Zamień na:</p>
+<div class="code">kulka_szer = bohater_frames[0].get_width()
+kulka_wys = bohater_frames[0].get_height()</div>
+
+<h3>Krok 8 – Rysowanie bohatera w pętli</h3>
+<div class="where">
+  <b>Gdzie:</b> w sekcji rysowania znajdź:
+  <code>rysuj_kulke(ekran, kulka_x, kulka_y, faza)</code>
+</div>
+
+<p>Zamień na:</p>
+<div class="code">rysuj_bohatera_sprite(ekran, kulka_x, kulka_y, bohater_frames, frame_index)</div>
+
+<h3>Krok 9 – Sprawdzenie</h3>
+<ul>
+  <li>Uruchom grę: bohater powinien być obrazkiem i „animować się” podczas biegu.</li>
+  <li>Jeśli widać czarne tło dookoła sprite: użyj <code>set_colorkey((0,0,0))</code>.</li>
+  <li>Jeśli bohater jest za duży/mały: zmień <code>(80, 80)</code> w skalowaniu.</li>
+</ul>
+
+<div class="pb"></div>
+
+<h2>3) Zadanie: Zamiana przeszkód na przeszkody animowane (plik: <code>hamster.png</code>, 8 kolumn × 1 wiersz)</h2>
+
+<p>
+  Teraz przeszkody są prostokątami (<code>pygame.Rect</code>). Zmienimy je na animowane sprite’y.
+  Sprite ma 8 klatek w jednym wierszu (8×1).
+</p>
+
+<h3>Krok 1 – Umieść plik <code>hamster.png</code> w folderze gry</h3>
+<ul>
+  <li>Plik <code>hamster.png</code> obok pliku z kodem gry.</li>
+</ul>
+
+<h3>Krok 2 – Dodaj klasę animowanej przeszkody</h3>
+<div class="where">
+  <b>Gdzie:</b> pod funkcjami pomocniczymi (np. pod <code>rysuj_bohatera_sprite</code>), przed <code>main()</code>.
+</div>
+
+<div class="code">class AnimowanaPrzeszkoda:
+    def __init__(self, x, y, frames, speed=6, anim_fps=10):
+        self.frames = frames
+        self.frame_index = 0
+        self.anim_timer = 0
+        # co ile klatek zmieniamy obraz (anim_fps klatek na sekundę)
+        self.anim_interval = max(1, FPS // anim_fps)
+
+        self.speed = speed
+        self.image = self.frames[self.frame_index]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.bottom = y  # dół przeszkody na podłodze
+
+    def update(self):
+        # ruch w lewo
+        self.rect.x -= self.speed
+
+        # animacja
+        self.anim_timer += 1
+        if self.anim_timer >= self.anim_interval:
+            self.anim_timer = 0
+            self.frame_index = (self.frame_index + 1) % len(self.frames)
+            self.image = self.frames[self.frame_index]
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)</div>
+
+<h3>Krok 3 – Wczytaj spritesheet przeszkody w <code>main()</code></h3>
+<div class="where">
+  <b>Gdzie:</b> w <code>main()</code>, po wczytaniu bohatera (lub gdziekolwiek przed pętlą gry).
+</div>
+
+<div class="code"># --- WCZYTANIE SPRITESHEETU PRZESZKODY (8 klatek: 8x1) ---
+hamster_sheet = pygame.image.load(&quot;hamster.png&quot;).convert_alpha()
+
+# Jeśli czarne tło ma być przezroczyste:
+# hamster_sheet.set_colorkey((0, 0, 0))
+
+hamster_frames = potnij_spritesheet(hamster_sheet, kolumny=8, wiersze=1)
+
+# (opcjonalnie) skalowanie przeszkody (dopasuj rozmiar)
+hamster_frames = [pygame.transform.scale(f, (80, 80)) for f in hamster_frames]</div>
+
+<h3>Krok 4 – Zmień tworzenie przeszkód (z Rect na obiekt)</h3>
+<div class="where">
+  <b>Gdzie:</b> w pętli gry znajdź fragment tworzenia przeszkody:
+  <code>przes = pygame.Rect(...)</code>
+</div>
+
+<p>
+  Zastąp cały fragment tworzenia przeszkód (od <code>szer = ...</code> i <code>wys = ...</code>) tym:
+</p>
+
+<div class="code"># TWORZENIE NOWYCH PRZESZKÓD (animowane sprite)
+teraz = pygame.time.get_ticks()
+if teraz - ostatnia_przeszkoda > czas_do_nowej:
+    ostatnia_przeszkoda = teraz
+
+    przes = AnimowanaPrzeszkoda(
+        x=SZEROKOSC,
+        y=podloga_y,
+        frames=hamster_frames,
+        speed=predkosc_przeszkod,
+        anim_fps=10
+    )
+    przeszkody.append(przes)</div>
+
+<h3>Krok 5 – Zmień aktualizację przeszkód</h3>
+<div class="where">
+  <b>Gdzie:</b> znajdź:
+  <code>for przes in przeszkody: przes.x -= predkosc_przeszkod</code>
+</div>
+
+<p>Zamień na:</p>
+<div class="code">for przes in przeszkody:
+    przes.update()</div>
+
+<h3>Krok 6 – Zmień usuwanie przeszkód poza ekranem</h3>
+<div class="where">
+  <b>Gdzie:</b> znajdź list comprehension:
+  <code>przeszkody = [p for p in przeszkody if p.right > 0]</code>
+</div>
+
+<p>Zamień na:</p>
+<div class="code">przeszkody = [p for p in przeszkody if p.rect.right > 0]</div>
+
+<h3>Krok 7 – Zmień kolizje (hitbox przeszkody)</h3>
+<div class="where">
+  <b>Gdzie:</b> w kolizjach znajdź:
+  <code>if kulka_rect.colliderect(przes):</code>
+</div>
+
+<p>Zamień na:</p>
+<div class="code">if kulka_rect.colliderect(przes.rect):</div>
+
+<h3>Krok 8 – Zmień rysowanie przeszkód</h3>
+<div class="where">
+  <b>Gdzie:</b> w rysowaniu przeszkód znajdź:
+  <code>pygame.draw.rect(ekran, CZARNY, przes, 2)</code>
+</div>
+
+<p>Zamień na:</p>
+<div class="code">for przes in przeszkody:
+    przes.draw(ekran)</div>
+
+<h3>Krok 9 – Sprawdzenie i poprawki</h3>
+<ul>
+  <li>Uruchom grę: zamiast prostokątów powinny być animowane przeszkody (hamster).</li>
+  <li>Jeśli przeszkoda jest za duża/mała: zmień skalowanie <code>(80, 80)</code>.</li>
+  <li>Jeśli kolizje są „za wczesne”: zmniejsz rect przeszkody, np. w <code>__init__</code> dodaj:<br/>
+    <span class="code">self.rect.inflate_ip(-20, -20)</span>
+  </li>
+</ul>
+
+<hr>
+
+<p class="small">
+  Wskazówka do nauki: po każdym zadaniu uruchom grę i sprawdź tylko jedną zmianę naraz.
+  Dzięki temu łatwo znaleźć błąd, jeśli coś nie działa.
+</p>
+
+</body>
+</html>
